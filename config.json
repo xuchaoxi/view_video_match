@@ -1,0 +1,11 @@
+{
+ "max_hits": 200,
+ "feature": "",
+ "metric": "AP",
+ "collection": "iacc.3",
+ "text_set": "tv17.avs.txt",
+ "model_config": "w2vvpp_resnext101_resnet152_subspace_v190916",
+ "automatch":"SimilarityIndex/tv17.avs.txt"
+}
+
+

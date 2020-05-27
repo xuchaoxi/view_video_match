@@ -1,0 +1,86 @@
+$def with (resp)
+
+$def result_to_table(resp, row_num=200):
+    <table style="margin:auto; width:80%;" cellspacing="1px" cellpadding="1px">
+    $ reslist = resp['results']
+    $ col_num = 5
+    $ index = 0
+    $ collection = resp['collection']
+    $for i in range(row_num):
+        <tr>
+        $for j in range(col_num):
+            $ index = i*col_num + j
+            $if index>=len(reslist):
+                $break
+            $if resp['status'] == 0:
+                $ url = '/?query=%s' % reslist[index]
+                <td> <a href="$url">$reslist[index]</a> </td>
+            $if resp['status'] == 1:
+                $ url = '/?query=shot2images-%s' % reslist[index]['shot']
+                $ imageid = reslist[index]['img']+'.jpg'
+                $ color = reslist[index]['color']
+                <td><img src="/images/$collection-$imageid" width=200 height=200 style="border:1px solid $color"></img>
+                    <br/><a href="$url">$imageid</a></td>
+        </tr>
+    </table>
+
+ 
+$def result_to_html(resp):
+    $ perf = ('%.3f' % resp['perf']).rstrip('0').rstrip('.')
+    $ metric = resp['metric']
+    <div style="margin:auto; text-align:left;"> Search for <b><font color="red">$resp['query']</font></b>: <font color="blue"><b> $resp['hits']</b></font> hits in our database, <font color="blue">$len(resp['results'])</font> returned (<b>$metric: $perf</b>) </div>
+    
+    $ res = resp['sent']
+    $for i, r in enumerate(resp['sent']):
+        $if resp['query']+':' in r:
+            <div style="margin:auto; text-align:left;"> <b> <font size=5 color="red">$i. $r </font> </b>  </div>
+        $else:
+            <div style="margin:auto; text-align:left;"> <b> <font size=5 >$i. $r </font> </b> </div>
+    <table class="fixed" cellspacing="10px">
+       <col width="50%">
+       <tr style="vertical-align:top;">
+       <td>$:result_to_table(resp)</td>
+       </tr>
+    </table>
+    
+    
+$def search_form(resp):
+    <form id="search_form"  method="post" action="search">
+    $if 0 == resp['status']:
+        <p><input placeholder="imageid"  type="text" id="input_tags" name="tags" class="focus" /> 
+            <input id="go" name="go"  type="submit" value="search" /></p>
+    $else:
+        <p><input value="$resp['query']"  type="text" id="input_tags" name="tags" class="focus" /> <input id="go" name="go" type="submit" value="search" /></p>
+    </form>
+        
+
+<html>
+<head>
+<link rel="stylesheet" href="/static/basic.css" type="text/css" media="screen" charset="utf-8"/>
+<script type="text/javascript" src="/static/jquery.js"></script>
+
+<script type="text/javascript">
+
+jQuery(document).ready(function(){
+    jQuery('#search_form').submit(function(e){
+        var input = jQuery.trim( jQuery('#input_tags').val() );
+        if (!input) {
+            e.preventDefault();
+        }
+        else {
+            jQuery('#input_tags').val(input)
+        }
+    });
+});
+
+</script>
+    
+</head>
+
+<body>
+
+
+$:search_form(resp)
+$:result_to_html(resp)
+
+</body>
